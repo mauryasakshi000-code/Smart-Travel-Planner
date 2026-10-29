@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Smart Travel Planner & Blogging Web System
 
 A full-stack travel planner: React frontend, C++ (Crow) REST backend, PostgreSQL in Docker, pgAdmin for database management, and Cloudinary for media.
@@ -296,3 +297,6 @@ npm run dev     # proxies /api to http://localhost:8080
 11. Security & error handling audit
 12. Full Dockerisation (production images)
 13. End-to-end testing
+=======
+# Smart-Travel-Planner
+>>>>>>> fe6f3942e465cb96e867ff4eb9d56e97c06b13e3
