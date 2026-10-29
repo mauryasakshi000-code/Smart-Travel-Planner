@@ -1,0 +1,29 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# C++ build output
+backend/build/
+backend/cmake-build-*/
+backend/out/
+*.o
+*.obj
+*.exe
+*.pdb
+*.ilk
+
+# Node / Vite
+node_modules/
+frontend/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.local
+
+# Editors and OS files
+.idea/
+.vs/
+*.swp
+.DS_Store
+Thumbs.db

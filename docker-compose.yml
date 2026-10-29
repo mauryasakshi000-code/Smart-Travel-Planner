@@ -1,0 +1,130 @@
+name: smart-travel-planner
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: stp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - travel_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # One-shot job: applies database/migrations (and seeds) and then exits.
+  migrate:
+    image: postgres:17-alpine
+    container_name: stp-migrate
+    restart: "no"
+    entrypoint: ["/bin/sh", "/docker/migrate/migrate.sh"]
+    environment:
+      PGHOST: ${DB_HOST:?Set DB_HOST in .env}
+      PGPORT: ${DB_PORT:-5432}
+      PGDATABASE: ${DB_NAME:?Set DB_NAME in .env}
+      PGUSER: ${DB_USER:?Set DB_USER in .env}
+      PGPASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      PGSSLMODE: require
+      PGCLIENTENCODING: UTF8
+      RUN_SEEDS: ${RUN_SEEDS:-true}
+    volumes:
+      - ./database:/database:ro
+      - ./docker/migrate/migrate.sh:/docker/migrate/migrate.sh:ro
+    networks:
+      - travel_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: stp-pgadmin
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/docker/pgadmin/entrypoint.sh"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:?Set PGADMIN_DEFAULT_EMAIL in .env}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?Set PGADMIN_DEFAULT_PASSWORD in .env}
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_SERVER_JSON_FILE: /tmp/servers.json
+      PGADMIN_REPLACE_SERVERS_ON_STARTUP: "True"
+      PGADMIN_TARGET_HOST: postgres
+      PGADMIN_TARGET_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+    ports:
+      - "${PGADMIN_HOST_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin/entrypoint.sh:/docker/pgadmin/entrypoint.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - travel_network
+
+  backend:
+    build:
+      context: ./backend
+    image: smart-travel-planner/backend:dev
+    container_name: stp-backend
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8080
+      SERVER_THREADS: ${SERVER_THREADS:-4}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      DB_HOST: ${DB_HOST:?Set DB_HOST in .env}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:?Set DB_NAME in .env}
+      DB_USER: ${DB_USER:?Set DB_USER in .env}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-8}
+      PGSSLMODE: require
+    ports:
+      - "${BACKEND_HOST_PORT:-8080}:8080"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - travel_network
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    image: smart-travel-planner/frontend:dev
+    container_name: stp-frontend
+    restart: unless-stopped
+    environment:
+      API_PROXY_TARGET: http://backend:8080
+      WATCH_POLLING: "true"
+    ports:
+      - "${FRONTEND_HOST_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - travel_network
+
+networks:
+  travel_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:

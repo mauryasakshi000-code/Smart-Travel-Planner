@@ -1,0 +1,180 @@
+.planner-page {
+  padding: 8px 0 24px;
+  color: #172b4d;
+}
+
+.planner-heading {
+  max-width: 700px;
+  margin: 0 auto 28px;
+  text-align: center;
+}
+
+.planner-heading > p {
+  margin: 0 0 8px;
+  color: #0d9488;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  font-size: 12px;
+}
+
+.planner-heading h1 {
+  margin: 0 0 8px;
+  font-size: clamp(28px, 5vw, 40px);
+}
+
+.planner-heading span {
+  color: #6b7280;
+}
+
+.planner-card {
+  display: grid;
+  gap: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px;
+  border: 1px solid #e0e7f0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 10px 40px rgba(23, 43, 77, 0.08);
+}
+
+.planner-card > label,
+.planner-grid label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.planner-card input:not([type="checkbox"]),
+.planner-card select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  font: inherit;
+  font-size: 15px;
+  color: #111827;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.planner-card input:not([type="checkbox"]):focus,
+.planner-card select:focus {
+  outline: none;
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18);
+}
+
+.planner-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+/* ---------- Interests as selectable chips ---------- */
+
+.planner-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.planner-interests legend {
+  margin-bottom: 12px;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.planner-interests label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.planner-interests label:hover {
+  border-color: #0d9488;
+}
+
+.planner-interests label:has(input:checked) {
+  border-color: #0d9488;
+  background: #e6f4f1;
+  color: #0f766e;
+  font-weight: 600;
+}
+
+.planner-interests input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #0d9488;
+  cursor: pointer;
+}
+
+/* ---------- Submit + messages ---------- */
+
+.planner-button {
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #0d9488;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.planner-button:hover:not(:disabled) {
+  background: #0f766e;
+}
+
+.planner-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.planner-card .alert {
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.planner-card pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .planner-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .planner-card {
+    padding: 20px;
+  }
+}
